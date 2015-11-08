@@ -1,0 +1,95 @@
+/* line 3, stdin */
+html, body {
+  padding: 0;
+  margin: 0; }
+
+/* line 8, stdin */
+body {
+  color: #fff;
+  background: #ff005a;
+  font-family: 'Ek Mukta', sans-serif;
+  text-align: center;
+  animation: colorize 6s linear;
+  -webkit-animation: colorize 6s linear infinite alternate; }
+
+/* line 19, stdin */
+.background {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #ff005a;
+  background-position: 50% 50%;
+  background-size: cover;
+  -webkit-filter: grayscale(1) opacity(0.4); }
+
+/* line 40, stdin */
+.container {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; }
+
+/* line 54, stdin */
+.content {
+  padding: 5%; }
+
+/* line 58, stdin */
+h1 {
+  font-size: 2rem; }
+
+/* line 62, stdin */
+.loading {
+  animation: breath 0.6s linear;
+  -webkit-animation: breath 0.3s linear infinite alternate; }
+
+@keyframes breath {
+  from {
+    opacity: 0.5; }
+  to {
+    opacity: 1.0; } }
+
+@keyframes colorize {
+  from {
+    background: #ff005a; }
+  to {
+    background: #ff0080; } }
+
+/* line 78, stdin */
+.artist {
+  display: none;
+  font-size: 6rem;
+  line-height: 1;
+  margin: 0;
+  margin-bottom: 0.75rem; }
+
+/* line 88, stdin */
+.song {
+  display: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  margin: 0;
+  margin-bottom: 3rem; }
+
+/* line 98, stdin */
+.play {
+  display: inline;
+  display: none;
+  border-bottom: 2px solid #fff;
+  cursor: pointer; }
+
+@media (max-width: 400px) {
+  /* line 107, stdin */
+  .artist {
+    display: none;
+    font-size: 4rem;
+    line-height: 1;
+    margin: 0;
+    margin-bottom: 0.75rem; } }

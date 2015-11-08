@@ -1,0 +1,15 @@
+{
+  "name": "hearthenear",
+  "version": "1.0.0",
+  "description": "o yes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "junction 2015",
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
+    "request": "^2.65.0"
+  }
+}

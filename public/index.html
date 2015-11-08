@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Hear the Near (powered by MixRadio)</title>
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+	<link href='https://fonts.googleapis.com/css?family=Ek+Mukta:400,800,700,600' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+	<div class="background"></div>
+
+	<div class="container">
+		<div class="content">
+			<h1>Hear the Near!</h1>
+
+			<p class="loading">searching</p>
+
+			<p class="artist"></p>
+			<p class="song">is the closest band to you.</p>
+
+			<div class="play do-play">Listen on MixRadio</div>
+		</div>
+	</div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/1.1.28/howler.min.js"></script>
+<script>
+	var $playButton = $('.do-play');
+
+	var client_id = 'f766cc9ac9ae4256b13a22e56498090b';
+	var countrycode = 'us';
+	var coordinate = '51.45534,-2.59239';
+	var maxdistance = '500';
+	var itemsperpage = '1';
+	var productId = 0;
+	var artist = '';
+	var image  = '';
+	var song = '';
+	var linkUrl = '';
+
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(getNewArtist, function() {
+			console.log('error');
+		});
+	}
+	else {
+		console.log('not supported');
+	}
+
+	getNewData();
+
+	$('.container').on('click', function(e) {
+		e.preventDefault();
+
+		$('.background').fadeOut(600);
+
+		$('.loading').show();
+		$('.song').hide();
+		$('.artist').hide();
+		$('.play').hide();
+		// $('.background').fadeIn(600);
+
+		setTimeout(getNewData, 601);
+	});
+
+	function getNewData() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(getNewArtist, function() {
+				console.log('error');
+			});
+		}
+		else {
+			console.log('not supported');
+		}
+	}
+
+	function getNewArtist(position) {
+		artist = 'noone found';
+		song = 'this could be your chance!';
+
+		if (position) {
+			var lat = parseFloat(position.coords.latitude) + Math.random(5) * 10;
+			var lng = parseFloat(position.coords.longitude) + Math.random(5) * 10;
+			coordinate = lat + ',' + lng;
+			console.log('coordinate', coordinate);
+		}
+
+		var queryString = 'http://api.mixrad.io/1.x/us/?domain=music&countrycode=' + countrycode + '&client_id=' + client_id + '&location=' + coordinate + '&maxdistance=' + maxdistance + '&itemsperpage=1';
+
+		$.ajax({
+			dataType: 'json',
+			url: queryString,
+			data: null,
+			success: function(data, status) {
+				console.log('queryString', queryString);
+				console.log('success', data);
+
+				if (data && data.items && data.items.length > 0) {
+					artist = data.items[0].name;
+					image = data.items[0].thumbnails['640x640'];
+					song = data.items[0].name;
+					productId = data.items[0].id;
+
+					getTrack(artist);
+				}
+			}
+		});
+	}
+
+	function getTrack(artist) {
+		var trackQueryString = 'http://api.mixrad.io/1.x/us/?domain=music&countrycode=' + countrycode + '&client_id=' + client_id + '&category=track&itemsperpage=1';
+
+		$.ajax({
+			dataType: 'json',
+			url: trackQueryString,
+			data: null,
+			success: function(data, status) {
+				console.log('trackQueryString', trackQueryString);
+				console.log('track query was successful', data);
+
+				if (data && data.items && data.items.length > 0 && data.items[0].samples.wmamms) {
+					productId = data.items[0].id;
+					linkUrl = data.items[0].storeuri;
+
+					var trackUrl = data.items[0].samples.wmamms;
+
+					// $.ajax({
+					// 	url: trackUrl,
+					// 	processData: false,
+					// })
+					// .error(function(jqXHR, timeout, message) {
+					// 	console.log('error');
+					// 	var contentType = jqXHR.getResponseHeader("Content-Type");
+					// 	console.log('contentType', contentType);
+					// 	console.log('jqXHR', jqXHR);
+					// });
+
+					updateView(artist, image);
+					// playTrack(trackUrl);
+				}
+			}
+		});
+	}
+
+	function updateView(artist, image) {
+		// $('h1').hide();
+		$('.loading').hide();
+		$('.song').show();
+		$('.artist').show();
+		$('.play').css('display', 'inline');
+		$('.background').fadeIn(600);
+
+		$('.artist').html(artist);
+		$('.background').css('background-image', 'url(' + image + ')');
+
+		console.log('linkUrl', linkUrl);
+
+		$playButton.off();
+
+		$playButton.on('click', function(e) {
+			e.preventDefault();
+
+			// window.location = 'http://www.mixrad.io/product/-/-/' + productId + '/';
+			// window.location = 'mixradio://play/artist/name/' + encodeURIComponent(artist);
+			// window.location = 'http://www.mixrad.io/artists/-/' + productId;
+			window.location = linkUrl;
+
+		});
+	}
+
+	function playTrack(trackUrl) {
+		// trackUrl = 'http://stream.mixrad.io/s/media/mp364sample/327488841.mp3?h=czOt2nceZeHZlmJTBiZzgZgqs4-Gpz6kRoTnEkWq1vmnQ61BGBIbnfsB9DOtbcH8m&mt=mp364sample&ut=clip';
+
+		console.log('going to play', trackUrl);
+		var sound = new Howl({
+			urls: [ trackUrl ],
+			onload: function() {
+				console.log('playing track onload finished');
+			},
+			onloaderror: function(err) {
+				console.log('playing track onloaderror', err);
+			},
+			onend: function() {
+				console.log('playing track track finished');
+			}
+		}).play();
+	}
+</script>
+</html>
